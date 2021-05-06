@@ -54,9 +54,7 @@ parser = argparse.ArgumentParser( description='Put a description of your script 
 parser.add_argument('-i', '--in_file', type=str, required=False, help='Path to an input file to be read' )
 parser.add_argument('-o', '--out_file', type=str, required=False, help='Path to an input file to be read' )
 args = parser.parse_args()
-colname1=["ipd_mean"+str(i) for i in range(21)]
-colname2=["pw_mean"+str(i) for i in range(21)]
-df_final=pd.read_csv(args.in_file,sep=",",names=["chr","pos","flag","6ma_flag","ipd_list","pw_list","ipd_mean","pw_mean"]+colname1+colname2+["ipdratio","context"],header=1)
+df_final=pd.read_csv(args.in_file,sep=",",names=["chr","pos","flag","6ma_flag","ipd_list","pw_list","ipdratio","context"],header=1)
 colname1=["clu_ipd"+str(i) for i in range(10)]
 colname2=["clu_pw"+str(i) for i in range(10)]
 colname3=["code"+str(i) for i in range(84)]
@@ -65,9 +63,10 @@ temp=df_final.apply(re_code,axis=1)
 df_final[colname1+colname2+colname3]=pd.DataFrame(list(map(np.array,temp)))
 df_final["final_tag"]=df_final["6ma_flag"]
 df_final["final_tag"]=df_final["final_tag"].astype(int)
-df_final=df_final.drop(['chr', 'pos', 'flag', '6ma_flag', 'ipd_mean','pw_mean','context','ipd_list', 'pw_list',],axis=1)
+df_final=df_final.drop(['chr', 'pos', 'flag', '6ma_flag', 'context','ipd_list', 'pw_list',],axis=1)
 df_final=df_final.round(3)
 df_final.to_csv(args.out_file,header=False,index=False)
+
 
 
 

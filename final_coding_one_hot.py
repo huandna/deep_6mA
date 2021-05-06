@@ -5,19 +5,6 @@ import pysam
 import numpy as np
 import pandas as pd
 from sklearn.cluster import KMeans
-def get_DNA_srtuct_code(seq):
-    df=np.zeros((4,len(seq)),dtype="float")
-    df = pd.DataFrame(df,index=["ring_structure","hydrogen_bond","amino_keto","density_base"])
-    df.loc["ring_structure"]=[1 if seq[i] in ["A","G"] else 0 for i in range(len(seq))]
-    df.loc["hydrogen_bond"]=[1 if seq[i] in ["A","T"] else 0 for i in range(len(seq))]
-    df.loc["amino_keto"]=[1 if seq[i] in ["A","C"] else 0 for i in range(len(seq))]
-    di=[]
-    for i in range(len(seq)):
-        Ni=i+1
-        fj=[ 1 if seq[j]==seq[i] else 0 for j in range(len(seq))]
-        di.append(round((sum(fj)/Ni),3))
-    df.loc["density_base"]=di
-    return np.array(df).reshape(1,-1)[0]
 def get_DNA_seq_tensor(seq):
     seq=seq.upper()
     df=np.zeros((4,len(seq)),dtype="int")
@@ -28,8 +15,7 @@ def get_DNA_seq_tensor(seq):
 def re_code(piece):
     col1=get_cluster([int(i) for i in piece["ipd_list"].split("-")],5)
     col2=get_cluster([int(i) for i in piece["pw_list"].split("-")],5)
-    #col3=list(get_DNA_seq_tensor(piece["context"]))
-    col3=list(get_DNA_srtuct_code(piece["context"]))
+    col3=list(get_DNA_seq_tensor(piece["context"]))
     return col1+col2+col3
 def get_cluster(tensor,n):
     result1=[]
@@ -54,9 +40,7 @@ parser = argparse.ArgumentParser( description='Put a description of your script 
 parser.add_argument('-i', '--in_file', type=str, required=False, help='Path to an input file to be read' )
 parser.add_argument('-o', '--out_file', type=str, required=False, help='Path to an input file to be read' )
 args = parser.parse_args()
-colname1=["ipd_mean"+str(i) for i in range(21)]
-colname2=["pw_mean"+str(i) for i in range(21)]
-df_final=pd.read_csv(args.in_file,sep=",",names=["chr","pos","flag","6ma_flag","ipd_list","pw_list","ipd_mean","pw_mean"]+colname1+colname2+["ipdratio","context"],header=1)
+df_final=pd.read_csv(args.in_file,sep=",",names=["chr","pos","flag","6ma_flag","ipd_list","pw_list","ipdratio","context"],header=1)
 colname1=["clu_ipd"+str(i) for i in range(10)]
 colname2=["clu_pw"+str(i) for i in range(10)]
 colname3=["code"+str(i) for i in range(84)]
@@ -65,9 +49,10 @@ temp=df_final.apply(re_code,axis=1)
 df_final[colname1+colname2+colname3]=pd.DataFrame(list(map(np.array,temp)))
 df_final["final_tag"]=df_final["6ma_flag"]
 df_final["final_tag"]=df_final["final_tag"].astype(int)
-df_final=df_final.drop(['chr', 'pos', 'flag', '6ma_flag', 'ipd_mean','pw_mean','context','ipd_list', 'pw_list',],axis=1)
+df_final=df_final.drop(['chr', 'pos', 'flag', '6ma_flag', 'context','ipd_list', 'pw_list',],axis=1)
 df_final=df_final.round(3)
 df_final.to_csv(args.out_file,header=False,index=False)
+
 
 
 

@@ -27,7 +27,7 @@ while True:
 		pair=reads1.cigartuples
 		if identiy >= 0.75 and reads1.query_alignment_length >=50:
 			pre_pos_pair=reads1.get_aligned_pairs(matches_only=True)
-			pos_pair=[j for j in pre_pos_pair]
+			pos_pair=[j for j in pre_pos_pair if reads1.seq[j[0]]==base]
 			reads_pos=[int(i[0]) for i in pos_pair]
 			ref_pos=[i[1]+1 for i in pos_pair]
 			ip=[str(i) for i in reads1.get_tag('ip')]

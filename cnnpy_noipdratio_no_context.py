@@ -11,6 +11,8 @@ parser.add_argument('-o', '--output_file', type=str, required=True, help='Path t
 args = parser.parse_args()
 
 df= pd.read_csv(args.input_file,names=[i for i in range(106)])
+df=df.drop([0],axis=1)
+df=df.drop([i for i in range(21,105)],axis=1)
 from sklearn.utils import shuffle
 df = shuffle(df)
 data = df.values
@@ -32,8 +34,8 @@ print("y_test", y_test.shape)
 x_train = x_train.reshape(x_train.shape[0],x_train.shape[1],1)
 x_test = x_test.reshape(x_test.shape[0],x_test.shape[1],1)
 model = keras.models.Sequential()
-model.add(Conv1D(80, kernel_size=4, activation='relu',input_shape = (105, 1)))
-model.add(Conv1D(80, kernel_size=4, activation='relu',input_shape = (105, 1)))
+model.add(Conv1D(80, kernel_size=4, activation='relu',input_shape = (20, 1)))
+model.add(Conv1D(80, kernel_size=4, activation='relu',input_shape = (20, 1)))
 model.add(BatchNormalization())
 model.add(Dropout(0.5))#dropoutlayer with a dropout rate of 0.5
 model.add(MaxPooling1D(pool_size=2, strides=None, padding='valid'))#A maximum pooling layer with a pool size of 2 was used

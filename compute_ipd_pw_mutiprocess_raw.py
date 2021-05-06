@@ -12,6 +12,8 @@ parser.add_argument('-a', '--m6a_file', type=str, required=False, help='Path to 
 parser.add_argument('-o', '--out_file', type=str, required=False, help='Path to an input file to be read' )
 parser.add_argument('-f', '--final_file', type=str, required=False, help='Path to an input file to be read' )
 args = parser.parse_args()
+#data = pd.read_csv("all_A_ipd_pw.tsv",sep=" ",names=["chr","pos","flag","ipd","pw"])
+#g=open("./comput_result","w")
 data = pd.read_csv(args.ipd_file,sep=" ",names=["chr","pos","flag","ipd","pw"])
 g=open(args.out_file,"w") 
 data.set_index(["chr","pos","flag"],inplace=True)
@@ -30,29 +32,9 @@ for i in data.index.levels[0]:
                     continue
 g.close()
 
-def get_mean(list1):
-    list1=[int(i) for i in list1.split("-")]
-    return np.mean(list1)
-def compute_mean(piece):
-    col1=get_mean(piece["ipd_list"])
-    col2=get_mean(piece["pw_list"])
-    return [col1,col2]
 del data
 data2=pd.read_csv(args.out_file,sep=" ",names=["chr","pos","flag","ipd_list","pw_list"])
-data2.set_index(["chr","flag","pos"],inplace=True) 
-temp=data2.apply(compute_mean,axis=1)
-data2[["ipd_mean","pw_mean"]]=list(map(np.array,temp))
-colname1=["ipd_mean"+str(i) for i in range(21)]
-colname2=["pw_mean"+str(i) for i in range(21)]
-data2 = pd.concat([data2, pd.DataFrame(columns=colname1+colname2)])
-for chrname in data2.index.levels[0]:
-    data_chr=data2.loc[chrname]
-    for strand in set([p[0] for p in data_chr.index]):
-            data_strand=data_chr.loc[strand]
-            for pos in set(data_strand.index):
-                  data2.loc[(chrname,strand,pos),colname1+colname2]=[data_strand.loc[i].ipd_mean if i in data_strand.index else 0  for i in range(pos-10,pos+11)]+[data_strand.loc[i].pw_mean if i in data_strand.index else 0  for i in range(pos-10,pos+11)]
-data2=data2.reset_index()
-data2.set_index(["chr","pos","flag"],inplace=True) 
+data2.set_index(["chr","pos","flag"],inplace=True)
  
 data1 = pd.read_csv(args.m6a_file,sep=" ",names=["chr","pos","flag","ipdratio","6ma_flag","context"])
 data1.set_index(["chr","pos","flag"],inplace=True)
